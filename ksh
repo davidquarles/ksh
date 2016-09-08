@@ -25,22 +25,20 @@ def match_pod(pattern)
     pods = `kubectl #{$global_opts} get pods | egrep "#{pattern}" | grep -v Terminating | awk '{ print $1 }'`.split("\n")
     if pods.length == 1
         return pods[0]
-    else
+    end
 
-        puts "pods found:"
-        pods.each_index do |i|
-            puts "  #{i}:\t#{pods[i]}"
-        end
+    puts "pods found:"
+    pods.each_index do |i|
+        puts "  #{i}:\t#{pods[i]}"
+    end
 
-        while true
-            print "select a pod by its index above [#{pods[0]}]: "
-            index = STDIN.gets.chomp.to_i
-            if pods[index].nil?
-                puts "pods[#{index}] does not exist"
-            else
-                return pods[index]
-            end
+    while true
+        print "select a pod by its index above [#{pods[0]}]: "
+        index = STDIN.gets.chomp.to_i
+        if !pods[index].nil?
+            return pods[index]
         end
+        puts "pods[#{index}] does not exist"
     end
 end
 
@@ -87,6 +85,6 @@ if !pod.nil?
     end
 
     COLUMNS, LINES =`tput cols`.chomp, `tput lines`.chomp
-    exec( "kubectl #{$global_opts} exec -it #{pod} #{$container} env COLUMNS=#{COLUMNS} LINES=#{LINES} TERM=xterm #{command}" )
+    exec( "set -x; kubectl #{$global_opts} exec -it #{pod} #{$container} env COLUMNS=#{COLUMNS} LINES=#{LINES} TERM=xterm #{command}; set +x" )
 
 end
